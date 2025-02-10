@@ -19,7 +19,7 @@ const BasketSkin = sequelize.define('basket_skin', {
 const Skin = sequelize.define('skin', {
 	id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 	name: { type: DataTypes.STRING, unique: true, allowNull: false },
-	price: { type: DataTypes.INTEGER, allowNull: false },
+	price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
 	img: { type: DataTypes.STRING, allowNull: false },
 })
 
@@ -84,7 +84,7 @@ Skin.belongsTo(Type)
 Skin.hasMany(BasketSkin)
 BasketSkin.belongsTo(Skin)
 
-Skin.hasMany(SkinInfo)
+Skin.hasMany(SkinInfo, { as: 'info' })
 SkinInfo.belongsTo(Skin)
 
 export {
