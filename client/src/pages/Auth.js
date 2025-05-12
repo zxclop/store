@@ -1,10 +1,85 @@
-import React from 'react'
+import { observer } from 'mobx-react-lite'
+import { useContext, useState } from 'react'
+import { Col, Container, Form, Row } from 'react-bootstrap'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { login, registration } from '../http/useAPI'
+import { Context } from '../index'
+import { LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from '../utils/const'
 
-const Auth = () => {
+const Auth = observer(() => {
+	const { user } = useContext(Context)
+	const location = useLocation()
+	const navigate = useNavigate() 
+	const isLogin = location.pathname === LOGIN_ROUTE
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+
+	const click = async () => {
+		try {
+			if (isLogin) {
+				user.setUser(await login(email, password))
+			} else {
+				user.setUser(await registration(email, password))
+			}
+			user.setIsAuth(true)
+			navigate(SHOP_ROUTE) // Заменяем history.push на navigate
+		} catch (e) {
+			alert(e.response?.data?.message || 'Ошибка авторизации')
+		}
+	}
 	return (
-		<div>
-			<h1>Auth</h1>
-		</div>
+		<Container
+			className='d-flex justify-content-center align-items-center'
+			style={{ height: window.innerHeight - 54 }}
+		>
+			<Card style={{ width: 600 }} className='p-5'>
+				<h2 className='m-auto'>{isLogin ? 'Авторизация' : 'Регистрация'}</h2>
+				<Form className='d-flex flex-column'>
+					<Form.Control
+						className='mt-3'
+						placeholder='Введите ваш email...'
+						value={email}
+						onChange={e => setEmail(e.target.value)}
+					/>
+					<Form.Control
+						className='mt-3'
+						placeholder='Введите ваш пароль...'
+						type='password'
+						value={password}
+						onChange={e => setPassword(e.target.value)}
+					/>
+
+					{/* Контейнер с текстом и кнопкой */}
+					<Row className='d-flex justify-content-between align-items-center mt-3 px-3'>
+						<Col xs='auto'>
+							{isLogin ? (
+								<div>
+									Нет аккаунта?{' '}
+									<NavLink to={REGISTRATION_ROUTE} className='custom-link'>
+										Зарегистрируйся!
+									</NavLink>
+								</div>
+							) : (
+								<div>
+									Есть аккаунт?{' '}
+									<NavLink to={LOGIN_ROUTE} className='custom-link'>
+										Войдите!
+									</NavLink>
+								</div>
+							)}
+						</Col>
+						<Col xs='auto'>
+							<Button variant='outline-success' onClick={click}>
+								{isLogin ? 'Войти' : 'Регистрация'}
+							</Button>
+						</Col>
+					</Row>
+				</Form>
+			</Card>
+		</Container>
 	)
-}
+})
+
 export default Auth

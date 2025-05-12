@@ -1,15 +1,18 @@
-import React from 'react'
+import { observer } from 'mobx-react-lite'
+import { useContext } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Context } from '../index.js'
 import { authRoutes, publicRoutes } from '../router'
-import { SHOP_ROUTE } from '../utils/const.js' // исправили путь
+import { SHOP_ROUTE } from '../utils/const.js'
 
-const AppRouter = () => {
-	const isAuth = true
+const AppRouter = observer(() => {
+	const { user } = useContext(Context)
+
 	return (
 		<Routes>
 			{' '}
-			{/* Заменили Switch на Routes */}
-			{isAuth &&
+			{}
+			{user.isAuth &&
 				authRoutes.map(({ path, Component }) => (
 					<Route key={path} path={path} element={<Component />} />
 				))}
@@ -19,6 +22,6 @@ const AppRouter = () => {
 			<Route path='*' element={<Navigate to={SHOP_ROUTE} />} />{' '}
 		</Routes>
 	)
-}
+})
 
 export default AppRouter

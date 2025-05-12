@@ -1,16 +1,22 @@
-import React from 'react'
+import React, { createContext } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
 import App from './App'
-import './index.css'
+import SkinStore from './store/SkinStore'
+import UserStore from './store/UserStore'
 
-import reportWebVitals from './reportWebVitals'
+export const Context = createContext(null)
+
+const userStore = new UserStore()
+const skinStore = new SkinStore()
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
-	<BrowserRouter>
+	<Context.Provider
+		value={{
+			user: userStore,
+			skin: skinStore,
+		}}
+	>
 		<App />
-	</BrowserRouter>
+	</Context.Provider>
 )
-
-reportWebVitals()

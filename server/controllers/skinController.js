@@ -1,67 +1,71 @@
 import path from 'path'
+import { Op } from 'sequelize'
 import { fileURLToPath } from 'url'
 import * as UUID from 'uuid'
 import ApiError from '../error/ApiError.js'
 import { Skin, SkinInfo } from '../models/models.js'
 
-// Определяем __dirname
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 class SkinController {
 	async create(req, res, next) {
 		try {
-			let { name, price, heroId, rarityId, typeId, info } = req.body
+			let { name, price, heroId, rarityId, typeId, treasureId, info } = req.body
+			if (!req.files || !req.files.img) {
+				return next(ApiError.badRequest('File not found'))
+			}			
 			const { img } = req.files
 			let fileName = UUID.v4() + '.jpg'
-
-			// Теперь __dirname работает правильно
 			img.mv(path.resolve(__dirname, '..', 'static', fileName))
-
-			if (info) {
-				info = JSON.parse(info)
-				info.forEach(i => {
-					SkinInfo.creatr({
-						title: i.title,
-						description: i.description,
-						deviceId: i.deviceId,
-					})
-				})
-			}
+	
 			const skin = await Skin.create({
 				name,
 				price,
 				heroId,
 				rarityId,
 				typeId,
-				info,
+				treasureId,
 				img: fileName,
 			})
+	
+			if (info) {
+				info = JSON.parse(info)
+				info.forEach(i => {
+					SkinInfo.create({
+						name: i.title,
+						description: i.description,
+						skinId: skin.id,
+					})
+				})
+			}
+	
+			
 			return res.json(skin)
 		} catch (e) {
 			next(ApiError.badRequest(e.message))
 		}
 	}
+	
 
 	async getAll(req, res) {
 		try {
-			let { heroId, typeId, rarityId, limit = 10, page = 1 } = req.query
+			let { heroId, typeId, rarityId, treasureId, limit = 10, page = 1 } = req.query
 			let offset = (page - 1) * limit
 
-			// Создаём пустой объект для фильтров
 			let where = {}
 
-			// Добавляем только те фильтры, которые есть в запросе
 			if (heroId) where.heroId = heroId
 			if (typeId) where.typeId = typeId
 			if (rarityId) where.rarityId = rarityId
-
-			// Выполняем запрос с динамическими фильтрами
+			if (treasureId) where.treasureId = treasureId
+			let { name } = req.query
+			if (name) where.name = {[Op.iLike]: `%${name}%`}
 			const skins = await Skin.findAndCountAll({ where, limit, offset })
 
 			return res.json(skins)
 		} catch (e) {
-			return res.status(500).json({ message: 'Ошибка сервера' })
+			return res.status(500).json({ message: 'Server Error' })
 		}
 	}
 
@@ -69,7 +73,7 @@ class SkinController {
 		const { id } = req.params
 		const skin = await Skin.findOne({
 			where: { id },
-			incude: [{ type: SkinInfo, as: 'info' }],
+			incude: [{ model: SkinInfo, as: 'info' }],
 		})
 		return res.json(skin)
 	}

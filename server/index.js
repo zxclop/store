@@ -34,6 +34,7 @@ const start = async () => {
 		app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
 	} catch (e) {
 		console.error('Database connection error:', e)
+		console.log(e)
 	}
 }
 

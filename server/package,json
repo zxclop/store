@@ -1,0 +1,12 @@
+{
+  "name": "store",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "concurrently \"yarn server\" \"yarn client\"",
+    "server": "cd server && yarn dev",
+    "client": "cd client && yarn start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}

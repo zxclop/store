@@ -6,9 +6,14 @@ export default function checkRole(role) {
 			return next()
 		}
 		try {
-			const token = req.headers.authorization.split(' ')[1] // "Bearer TOKEN"
+			const authHeader = req.headers.authorization
+			if (!authHeader) {
+				return res.status(401).json({ message: 'User is not authorized (no header)' })
+			}
+
+			const token = authHeader.split(' ')[1] // "Bearer TOKEN"
 			if (!token) {
-				return res.status(401).json({ message: 'User is not authorized' })
+				return res.status(401).json({ message: 'User is not authorized (no token)' })
 			}
 
 			const decoded = jwt.verify(token, process.env.SECRET_KEY)
@@ -19,7 +24,8 @@ export default function checkRole(role) {
 			req.user = decoded
 			next()
 		} catch (e) {
-			res.status(401).json({ message: 'User is not authorized' })
+			console.log('JWT error:', e.message)
+			return res.status(401).json({ message: 'User is not authorized (invalid token)' })
 		}
 	}
 }
