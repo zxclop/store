@@ -30,10 +30,10 @@ const addTreasure = () => {
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant='outline-danger' onClick={onHide}>
-					Закрыть
+					Закрити
 				</Button>
 				<Button variant='outline-success' onClick={addTreasure}>
-					Добавить
+					Додати
 				</Button>
 			</Modal.Footer>
 		</Modal>

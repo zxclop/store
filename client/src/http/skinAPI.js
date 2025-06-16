@@ -8,13 +8,28 @@ export const fetchTypes = async () => {
 	const { data } = await $host.get('/api/type')
 	return data
 }
-
+export const updateType = async type => {
+	const { data } = await $authHost.patch('api/type', type)
+	return data
+}
+export const deleteType = async type => {
+	const { data } = await $authHost.delete('api/type', { data: type })
+	return data
+}
 export const createHero = async hero => {
 	const { data } = await $authHost.post('api/hero', hero)
 	return data
 }
 export const fetchHeroes = async () => {
-	const { data } = await $host.get('api/hero', 	)
+	const { data } = await $host.get('api/hero')
+	return data
+}
+export const updateHero = async hero => {
+	const { data } = await $authHost.patch('api/hero', hero)
+	return data
+}	
+export const deleteHero = async hero => {
+	const { data } = await $authHost.delete('api/hero', { data: hero })
 	return data
 }
 export const createRarity = async rarity => {
@@ -25,6 +40,14 @@ export const fetchRarities = async () => {
 	const { data } = await $host.get('api/rarity')
 	return data
 }
+export const updateRarity = async rarity => {
+	const { data } = await $authHost.patch('api/rarity', rarity)
+	return data
+}
+export const deleteRarity = async rarity => {
+	const { data } = await $authHost.delete('api/rarity', { data: rarity })
+	return data
+}
 export const createTreasure = async treasure => {
 	const { data } = await $authHost.post('api/treasure', treasure)
 	return data
@@ -33,9 +56,26 @@ export const fetchTreasures = async () => {
 	const { data } = await $host.get('api/treasure')
 	return data
 }
+export const updateTreasure = async treasure => {
+	const { data } = await $authHost.patch('api/treasure', treasure)
+	return data
+}
+export const deleteTreasure = async treasure => {
+	const { data } = await $authHost.delete('api/treasure', { data: treasure })
+	return data
+}
 export const createSkin = async skins => {
 	const { data } = await $authHost.post('api/skin', skins)
 	return data
+}
+export const updateSkin = async (id, formData) => {
+	const { data } = await $authHost.patch('api/skin/' + id, formData)
+	return data
+}
+
+export const deleteSkin = async id => {
+		const { data } = await $authHost.delete('api/skin/' + id)
+		return data
 }
 export const fetchSkins = async (
   typeId,

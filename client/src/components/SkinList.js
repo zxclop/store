@@ -2,9 +2,9 @@ import { observer } from 'mobx-react-lite'
 import { useContext } from 'react'
 import { Row } from 'react-bootstrap'
 import { Context } from '../index'
-import SkinItem from './SkinItem'
+	import SkinItem from './SkinItem'
 
-const SkinList = observer(() => {
+const SkinList = observer(({ skins }) => {
 	const { skin } = useContext(Context)
 	return (
 		<Row className='d-flex'>

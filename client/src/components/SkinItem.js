@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Card, Col } from 'react-bootstrap'
-import SkinModal from './SkinModal'; // Импортируем модальное окно
+import SkinModal from './SkinModal'; 
 
 const SkinItem = ({ skin }) => {
 	const [showModal, setShowModal] = useState(false)

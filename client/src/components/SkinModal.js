@@ -4,38 +4,36 @@ const SkinModal = ({ show, handleClose, skin }) => {
 	if (!skin) return null
 
 	return (
-		<Modal show={show} onHide={handleClose} centered size="lg">
-			<Modal.Body className="p-4 bg-dark text-white rounded">
-				<div className="d-flex flex-column flex-md-row align-items-center gap-4">
-					<Image
-						src={process.env.REACT_APP_API_URL + skin.img}
-						alt={skin.name}
-						width={300}
-						height={300}
-						rounded
-						style={{ objectFit: 'cover', boxShadow: '0 0 15px rgba(0,0,0,0.5)' }}
-					/>
-					<div className="w-100">
-						<h2 className="mb-3">{skin.name}</h2>
-						<h4 className="text-success mb-3">{skin.price} $</h4>
+		<Modal show={show} onHide={handleClose} centered size="md">
+			<Modal.Body className="bg-dark text-white p-4 rounded" style={{ borderRadius: '12px' }}>
+				<Image
+					src={process.env.REACT_APP_API_URL + skin.img}
+					alt={skin.name}
+					fluid
+					rounded
+					style={{
+						width: '100%',
+						objectFit: 'cover',
+						marginBottom: '20px',
+						borderRadius: '10px',
+					}}
+				/>
 
-						{Array.isArray(skin.info) && skin.info.length > 0 ? (
-							<ul className="list-unstyled">
-								{skin.info.map((item, idx) => (
-									<li key={idx} className="mb-2">
-										<strong>{item.title}</strong>: {item.description}
-									</li>
-								))}
-							</ul>
-						) : (
-							<p className="text-muted">Описание недоступно</p>
-						)}
+				<h4 className="mb-3">{skin.name}</h4>
 
-						<Button variant="success" size="lg" className="w-100 mt-3">
-							Добавить в корзину
-						</Button>
-					</div>
-				</div>
+				<p><strong>Hero:</strong> {skin.hero?.name || 'Unknown'}</p>
+				<p><strong>Rarity:</strong> {skin.rarity?.name || 'Unknown'}</p>
+				<p><strong>Price:</strong> {parseFloat(skin.price).toFixed(2)} $</p>
+				<p>
+					<strong>Description:</strong>{' '}
+					{Array.isArray(skin.info) && skin.info.length > 0
+						? skin.info[0].description
+						: 'No description available'}
+				</p>
+
+				<Button variant="secondary" className="mt-3 w-100">
+					Add to Cart
+				</Button>
 			</Modal.Body>
 		</Modal>
 	)

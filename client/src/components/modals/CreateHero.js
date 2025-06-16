@@ -30,10 +30,10 @@ const CreateHero = ({ show, onHide }) => {
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant='outline-danger' onClick={onHide}>
-					Close
+					Закрити
 				</Button>
 				<Button variant='outline-success' onClick={addHero}>
-					Add
+					Додати
 				</Button>
 			</Modal.Footer>
 		</Modal>

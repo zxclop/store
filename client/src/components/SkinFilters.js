@@ -23,13 +23,13 @@ const SkinFilters = observer(() => {
 		skin.setPage(1)
 	}
 	if (!skin || !skin.types || !skin.rarities || !skin.heroes 	) {
-		return <div>Загрузка...</div>
+		return <div>Завантаження...</div>
 	}
 
 	return (
 		<Form>
 			<Form.Group controlId='typeSelect'>
-				<Form.Label>Type</Form.Label>
+				<Form.Label>Тип</Form.Label>
 				<Form.Control
 					as='select'
 					value={skin.selectedType?.id || ''}
@@ -49,7 +49,7 @@ const SkinFilters = observer(() => {
 			</Form.Group>
 
 			<Form.Group controlId='raritySelect' className='mt-2'>
-				<Form.Label>Rarity</Form.Label>
+				<Form.Label>Рідкість</Form.Label>
 				<Form.Control
 					as='select'
 					value={skin.selectedRarity?.id || ''}
@@ -69,7 +69,7 @@ const SkinFilters = observer(() => {
 			</Form.Group>
 
 			<Form.Group controlId='heroSelect' className='mt-2'>
-				<Form.Label>Hero</Form.Label>
+				<Form.Label>Герої</Form.Label>
 				<Form.Control
 					as='select'
 					value={skin.selectedHero?.id || ''}
@@ -89,19 +89,19 @@ const SkinFilters = observer(() => {
 			</Form.Group>
 				<InputGroup className='mt-4'>
 					<Form.Control
-						placeholder="Search skins by name"
+						placeholder="Шукати скіни за назвою"
 						value={search}
 						onChange={e => setSearch(e.target.value)}
 					/>
 
 				<Button type='sumbit' onClick={handleSearch} >
-					Search
+					Шукати
 				</Button>
 				 </InputGroup>
 			<Button variant="outline-secondary"
 				className='mt-3'
 				onClick={handleResetFilters}>
-				Reset filters
+				Скинути фільтри
 			</Button>
 		</Form>
 	)

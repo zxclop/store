@@ -24,9 +24,9 @@ const Auth = observer(() => {
 				user.setUser(await registration(email, password))
 			}
 			user.setIsAuth(true)
-			navigate(SHOP_ROUTE) // Заменяем history.push на navigate
+			navigate(SHOP_ROUTE) 
 		} catch (e) {
-			alert(e.response?.data?.message || 'Ошибка авторизации')
+			alert(e.response?.data?.message || 'Помилка при авторизації')
 		}
 	}
 	return (
@@ -35,44 +35,44 @@ const Auth = observer(() => {
 			style={{ height: window.innerHeight - 54 }}
 		>
 			<Card style={{ width: 600 }} className='p-5'>
-				<h2 className='m-auto'>{isLogin ? 'Авторизация' : 'Регистрация'}</h2>
+				<h2 className='m-auto'>{isLogin ? 'Авторизація' : 'Реєстрація'}</h2>
 				<Form className='d-flex flex-column'>
 					<Form.Control
 						className='mt-3'
-						placeholder='Введите ваш email...'
+						placeholder='Введіть ваш email...'
 						value={email}
 						onChange={e => setEmail(e.target.value)}
 					/>
 					<Form.Control
 						className='mt-3'
-						placeholder='Введите ваш пароль...'
+						placeholder='Введіть ваш пароль...'
 						type='password'
 						value={password}
 						onChange={e => setPassword(e.target.value)}
 					/>
 
-					{/* Контейнер с текстом и кнопкой */}
+					{/* Container with text and button */}
 					<Row className='d-flex justify-content-between align-items-center mt-3 px-3'>
 						<Col xs='auto'>
 							{isLogin ? (
 								<div>
-									Нет аккаунта?{' '}
+									Немає акаунта?{' '}
 									<NavLink to={REGISTRATION_ROUTE} className='custom-link'>
-										Зарегистрируйся!
+										Зареєструйся!
 									</NavLink>
 								</div>
 							) : (
 								<div>
-									Есть аккаунт?{' '}
+									Є аккаунт?{' '}
 									<NavLink to={LOGIN_ROUTE} className='custom-link'>
-										Войдите!
+										Увійдіть!
 									</NavLink>
 								</div>
 							)}
 						</Col>
 						<Col xs='auto'>
 							<Button variant='outline-success' onClick={click}>
-								{isLogin ? 'Войти' : 'Регистрация'}
+								{isLogin ? 'Увійти' : 'Зареєструватися'}
 							</Button>
 						</Col>
 					</Row>

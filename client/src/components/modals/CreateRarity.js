@@ -31,10 +31,10 @@ const CreateRarity = ({ show, onHide }) => {
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant='outline-danger' onClick={onHide}>
-					Close
+					Закрити
 				</Button>
 				<Button variant='outline-success' onClick={addRarity}>
-					Add
+					Додати
 				</Button>
 			</Modal.Footer>
 		</Modal>

@@ -30,10 +30,10 @@ const CreateType = ({ show, onHide }) => {
 			</Modal.Body>
 			<Modal.Footer>
 				<Button variant='outline-danger' onClick={onHide}>
-					Закрыть
+					Закрити
 				</Button>
 				<Button variant='outline-success' onClick={addType}>
-					Добавить
+					Додати
 				</Button>
 			</Modal.Footer>
 		</Modal>

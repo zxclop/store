@@ -1,66 +1,106 @@
-import React, { useState } from 'react'
-import { Button, Container } from 'react-bootstrap'
-import CreateHero from '../components/modals/CreateHero'
-import CreateRarity from '../components/modals/CreateRarity'
+import React, { useEffect, useState, useContext } from 'react'
+import { Button, Container, Table, Modal } from 'react-bootstrap'
+import { fetchSkins, deleteSkin } from '../http/skinAPI'
 import CreateSkin from '../components/modals/CreateSkin'
-import CreateTreasure from '../components/modals/CreateTreasure'
-import CreateType from '../components/modals/CreateType'
+import { Context } from '../index'
 
 const Admin = () => {
-	const [typeVisible, setTypeVisible] = useState(false)
-	const [heroVisible, setHeroVisible] = useState(false)
-	const [rarityVisible, setRarityVisible] = useState(false)
-	const [treasureVisible, setTreasureVisible] = useState(false)
-	const [skinVisible, setSkinVisible] = useState(false)
+	const [skins, setSkins] = useState([])
+	const [loading, setLoading] = useState(true)
+	const [showCreateModal, setShowCreateModal] = useState(false)
+	const [editSkin, setEditSkin] = useState(null)
+
+	useEffect(() => {
+		loadSkins()
+	}, [])
+
+	const loadSkins = async () => {
+		setLoading(true)
+		const data = await fetchSkins()
+		setSkins(data.rows)
+		setLoading(false)
+	}
+
+	const handleDelete = async (id) => {
+		if (window.confirm('Ви впевнені, що хочете видалити цей скін?')) {
+			await deleteSkin(id)
+			loadSkins()
+		}
+	}
+
+	const handleEdit = (skin) => {
+		setEditSkin(skin)
+		setShowCreateModal(true)
+	}
+
 	return (
-		<Container style={{ position: 'relative', zIndex: 2 }}>
-			<h2>Admin panel</h2>
+		<Container className='mt-4'>
+			<h2>Панель адміністратора</h2>
 			<Button
-				variant='outline-dark'
-				className='mt-4 p-2'
-				onClick={() => setTypeVisible(true)}
+				variant='success'
+				className='mb-3'
+				onClick={() => {
+					setEditSkin(null)
+					setShowCreateModal(true)
+				}}
 			>
-				Add type
+				Додати скін
 			</Button>
-			<Button
-				variant='outline-dark'
-				className='mt-4 p-2'
-				onClick={() => setHeroVisible(true)}
-			>
-				Add hero
-			</Button>
-			<Button
-				variant='outline-dark'
-				className='mt-4 p-2'
-				onClick={() => setRarityVisible(true)}
-			>
-				Add rarity
-			</Button>
-			<Button
-				variant='outline-dark'
-				className='mt-4 p-2'
-				onClick={() => setTreasureVisible(true)}
-			>
-				Add treasure
-			</Button>
-			<Button
-				variant='outline-dark'
-				className='mt-4 p-2'
-				onClick={() => setSkinVisible(true)}
-			>
-				Add skin
-			</Button>
-			<CreateType show={typeVisible} onHide={() => setTypeVisible(false)} />
-			<CreateHero show={heroVisible} onHide={() => setHeroVisible(false)} />
-			<CreateRarity
-				show={rarityVisible}
-				onHide={() => setRarityVisible(false)}
+
+			{loading ? (
+				<p>Завантаження...</p>
+			) : (
+				<Table striped bordered hover responsive>
+					<thead>
+						<tr>
+							<th>Зображення</th>
+							<th>Назва</th>
+							<th>Ціна</th>
+							<th>Дії</th>
+						</tr>
+					</thead>
+					<tbody>
+						{skins.map((skin) => (
+							<tr key={skin.id}>
+								<td>
+									<img
+										src={process.env.REACT_APP_API_URL + skin.img}
+										alt={skin.name}
+										width={60}
+										height={60}
+										style={{ objectFit: 'cover' }}
+									/>
+								</td>
+								<td>{skin.name}</td>
+								<td>{skin.price} $</td>
+								<td>
+									<Button
+										variant='warning'
+										size='sm'
+										onClick={() => handleEdit(skin)}
+									>
+										Редагувати
+									</Button>{' '}
+									<Button
+										variant='danger'
+										size='sm'
+										onClick={() => handleDelete(skin.id)}
+									>
+										Видалити
+									</Button>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</Table>
+			)}
+
+			<CreateSkin
+				show={showCreateModal}
+				onHide={() => setShowCreateModal(false)}
+				editData={editSkin}
+				onUpdate={() => loadSkins()}
 			/>
-			<CreateTreasure
-				show={treasureVisible}
-				onHide={() => setTreasureVisible(false)}
-			/>
-			<CreateSkin show={skinVisible} onHide={() => setSkinVisible(false)} />
 		</Container>
 	)
 }
