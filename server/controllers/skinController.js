@@ -1,167 +1,177 @@
-import { observer } from 'mobx-react-lite'
-import { useContext, useEffect, useState } from 'react'
-import {
-	Button, Col, Dropdown, Form, FormControl, Modal, Row
-} from 'react-bootstrap'
-import {
-	createSkin, updateSkin,
-	fetchHeroes, fetchRarities, fetchTreasures, fetchTypes
-} from '../../http/skinAPI'
-import { Context } from '../../index'
-import { formatNamedParameters } from 'sequelize/lib/utils'
+import { Skin, Hero, Rarity, Type, Treasure, SkinInfo } from '../models/models.js'
+import { v4 as uuidv4 } from 'uuid'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 
-const CreateSkin = observer(({ show, onHide, editData, onUpdate }) => {
-	const { skin } = useContext(Context)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-	const [name, setName] = useState('')
-	const [price, setPrice] = useState(0)
-	const [file, setFile] = useState(null)
-	const [info, setInfo] = useState([])
+class SkinController {
+  async create(req, res) {
+    try {
+      const { name, price, heroId, rarityId, typeId, treasureId, info } = req.body
+      const { img } = req.files
 
-	useEffect(() => {
-		fetchTypes().then(data => skin.setTypes(data))
-		fetchHeroes().then(data => skin.setHeroes(data))
-		fetchRarities().then(data => skin.setRarities(data))
-		fetchTreasures().then(data => skin.setTreasures(data))
-	}, [])
+      const fileName = uuidv4() + '.jpg'
+      const filePath = path.resolve(__dirname, '..', 'static', fileName)
+      await img.mv(filePath)
 
-	useEffect(() => {
-		if (editData) {
-			setName(editData.name)
-			setPrice(editData.price)
-			setFile(null)
-			setInfo(editData.info || [])
+      const skin = await Skin.create({ name, price, heroId, rarityId, typeId, treasureId, img: fileName })
 
-			skin.setSelectedType(skin.types.find(t => t.id === editData.typeId))
-			skin.setSelectedHero(skin.heroes.find(h => h.id === editData.heroId))
-			skin.setSelectedRarity(skin.rarities.find(r => r.id === editData.rarityId))
-			skin.setSelectedTreasure(skin.treasures.find(t => t.id === editData.treasureId))
-		} else {
-			setName('')
-			setPrice(0)
-			setFile(null)
-			setInfo([])
-			skin.setSelectedType({})
-			skin.setSelectedHero({})
-			skin.setSelectedRarity({})
-			skin.setSelectedTreasure({})
-		}
-	}, [editData, skin])
+      if (info) {
+        const parsedInfo = JSON.parse(info)
+        for (const i of parsedInfo) {
+          await SkinInfo.create({
+            title: i.title,
+            description: i.description,
+            skinId: skin.id,
+          })
+        }
+      }
 
-	const selectFile = e => setFile(e.target.files[0])
+      return res.json(skin)
+    } catch (e) {
+      console.error('❌ Error in create:', e)
+      return res.status(500).json({ message: 'Помилка при створенні скіна.' })
+    }
+  }
 
-	const addInfo = () => setInfo([...info, { title: '', description: '', number: Date.now() }])
-	const removeInfo = number => setInfo(info.filter(i => i.number !== number))
-	const changeInfo = (key, value, number) => {
-		setInfo(info.map(i => (i.number === number ? { ...i, [key]: value } : i)))
-	}
+async update(req, res) {
+  try {
+    const skinId = req.params.id
+    const { name, price, heroId, rarityId, typeId, treasureId, info } = req.body
 
-	const handleSubmit = async () => {
-		try {
-			const skinData = {
-				name,
-				price,
-				heroId: skin.selectedHero.id,
-				rarityId: skin.selectedRarity.id,
-				typeId: skin.selectedType.id,
-				treasureId: skin.selectedTreasure.id,
-				info: JSON.stringify(info),
-			}
+    const skin = await Skin.findByPk(skinId)
+    if (!skin) {
+      return res.status(404).json({ message: 'Скін не знайдено' })
+    }
 
-			let response
-			const formData = new FormData()
-			for (let key in skinData) {
-				formData.append(key, skinData[key])
-			}
-			if (file) {
-				formData.append('img', file)
-			}
+    const updatedFields = {}
 
-			if (editData) {
-				response = await updateSkin(editData.id, formData)
-			} else {
-				response = await createSkin(formData)
-			}
+    if (name !== undefined) updatedFields.name = name
+    if (price !== undefined) updatedFields.price = price
+    if (heroId !== undefined) updatedFields.heroId = heroId
+    if (rarityId !== undefined) updatedFields.rarityId = rarityId
+    if (typeId !== undefined) updatedFields.typeId = typeId
+    if (treasureId !== undefined) updatedFields.treasureId = treasureId
 
-			onUpdate()
-			onHide()
-		} catch (err) {
-			console.error("❌ Помилка при створенні/редагуванні скіна:", err)
-			alert("Помилка. Перевірте всі поля.")
-		}
-	}
 
-	return (
-		<Modal show={show} onHide={onHide} centered>
-			<Modal.Header closeButton>
-				<Modal.Title> {editData ? 'Редагувати скін' : 'Додати скін'} </Modal.Title>
-			</Modal.Header>
-			<Modal.Body>
-				<Form>
-					<Dropdown className='mt-2'>
-						<Dropdown.Toggle>{skin.selectedType.name || "Тип"}</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{skin.types.map(t =>
-								<Dropdown.Item key={t.id} onClick={() => skin.setSelectedType(t)}>{t.name}</Dropdown.Item>
-							)}
-						</Dropdown.Menu>
-					</Dropdown>
+    if (req.files && req.files.img) {
+      const img = req.files.img
+      const fileName = uuidv4() + '.jpg'
+      const filePath = path.resolve(__dirname, '..', 'static', fileName)
+      await img.mv(filePath)
 
-					<Dropdown className='mt-2'>
-						<Dropdown.Toggle>{skin.selectedRarity.name || "Рідкість"}</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{skin.rarities.map(r =>
-								<Dropdown.Item key={r.id} onClick={() => skin.setSelectedRarity(r)}>{r.name}</Dropdown.Item>
-							)}
-						</Dropdown.Menu>
-					</Dropdown>
+      const oldPath = path.resolve(__dirname, '..', 'static', skin.img)
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath)
+      }
 
-					<Dropdown className='mt-2'>
-						<Dropdown.Toggle>{skin.selectedHero.name || "Герой"}</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{skin.heroes.map(h =>
-								<Dropdown.Item key={h.id} onClick={() => skin.setSelectedHero(h)}>{h.name}</Dropdown.Item>
-							)}
-						</Dropdown.Menu>
-					</Dropdown>
+      updatedFields.img = fileName
+    }
+console.log(" body:", req.body)
+console.log(" files:", req.files)
 
-					<Dropdown className='mt-2'>
-						<Dropdown.Toggle>{skin.selectedTreasure.name || "Трежер"}</Dropdown.Toggle>
-						<Dropdown.Menu>
-							{skin.treasures.map(t =>
-								<Dropdown.Item key={t.id} onClick={() => skin.setSelectedTreasure(t)}>{t.name}</Dropdown.Item>
-							)}
-						</Dropdown.Menu>
-					</Dropdown>
+console.log(" updatedFields:", updatedFields)
 
-					<FormControl value={name} onChange={e => setName(e.target.value)} className='mt-3' placeholder='Назва скіна' />
-					<FormControl value={price} onChange={e => setPrice(+e.target.value)} className='mt-3' placeholder='Ціна' type='number' />
-					<FormControl className='mt-3' type='file' onChange={selectFile} />
-					<hr />
-					<Button variant='outline-dark' onClick={addInfo}>Додати властивість</Button>
-					{info.map(i =>
-						<Row className="mt-4" key={i.number}>
-							<Col md={4}>
-								<Form.Control value={i.title} onChange={(e) => changeInfo('title', e.target.value, i.number)} placeholder="Назва властивості" />
-							</Col>
-							<Col md={4}>
-								<Form.Control value={i.description} onChange={(e) => changeInfo('description', e.target.value, i.number)} placeholder="Опис" />
-							</Col>
-							<Col md={4}>
-								<Button onClick={() => removeInfo(i.number)} variant="outline-danger">Видалити</Button>
-							</Col>
-						</Row>
-					)}
-				</Form>
-			</Modal.Body>
-			<Modal.Footer>
-				<Button variant='outline-danger' onClick={onHide}>Закрити</Button>
-				<Button variant='outline-success' onClick={handleSubmit}>
-					{editData ? 'Зберегти зміни' : 'Додати'}
-				</Button>
-			</Modal.Footer>
-		</Modal>
-	)
-})
+    await skin.update(updatedFields)
 
-export default CreateSkin
+    if (info) {
+      try {
+        await SkinInfo.destroy({ where: { skinId: skin.id } })
+        const parsedInfo = JSON.parse(info)
+
+        for (const i of parsedInfo) {
+          await SkinInfo.create({
+            title: i.title,
+            description: i.description,
+            skinId: skin.id,
+          })
+        }
+      } catch (parseError) {
+        console.error('❌ Невалідне info:', info)
+        return res.status(400).json({ message: 'Некоректний формат поля info' })
+      }
+    }
+
+    return res.json(skin)
+  } catch (e) {
+    console.error('❌ Error in update:', e)
+    return res.status(500).json({ message: 'Помилка при оновленні скіна.' })
+  }
+}
+
+
+  async getAll(req, res) {
+  try {
+    const {
+      typeId,
+      heroId,
+      rarityId,
+      treasureId,
+      page = 1,
+      limit = 5,
+      search = ''
+    } = req.query
+
+    const where = {}
+
+    if (typeId) where.typeId = Number(typeId)
+    if (heroId) where.heroId = Number(heroId)
+    if (rarityId) where.rarityId = Number(rarityId)
+    if (treasureId) where.treasureId = Number(treasureId)
+    if (search) where.name = { $like: `%${search}%` }
+
+    const offset = (page - 1) * limit
+
+    const skins = await Skin.findAndCountAll({
+      where,
+      limit: Number(limit),
+      offset: Number(offset),
+      include: [Hero, Rarity, Type, Treasure]
+    })
+
+    return res.json(skins)
+  } catch (e) {
+    console.error('Error in getAll:', e)
+    return res.status(500).json({ message: 'Помилка при отриманні скінів.' })
+  }
+}
+
+  async getOne(req, res) {
+    try {
+      const { id } = req.params
+      const skin = await Skin.findOne({
+        where: { id },
+        include: [{ model: SkinInfo, as: 'info' }, Hero, Rarity, Type, Treasure],
+      })
+      if (!skin) return res.status(404).json({ message: 'Скін не знайдено' })
+      return res.json(skin)
+    } catch (e) {
+      return res.status(500).json({ message: 'Помилка при отриманні скіна.' })
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const { id } = req.params
+      const skin = await Skin.findByPk(id)
+      if (!skin) return res.status(404).json({ message: 'Скін не знайдено' })
+
+      const imgPath = path.resolve(__dirname, '..', 'static', skin.img)
+      if (fs.existsSync(imgPath)) {
+        fs.unlinkSync(imgPath)
+      }
+
+      await SkinInfo.destroy({ where: { skinId: id } })
+      await skin.destroy()
+
+      return res.json({ message: 'Скін видалено' })
+    } catch (e) {
+      return res.status(500).json({ message: 'Помилка при видаленні скіна.' })
+    }
+  }
+}
+
+export default new SkinController()

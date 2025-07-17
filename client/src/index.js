@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import SkinStore from './store/SkinStore'
 import UserStore from './store/UserStore'
+import CartStore from './store/CartStore'
 
 export const Context = createContext(null)
 
@@ -15,6 +16,7 @@ root.render(
 		value={{
 			user: userStore,
 			skin: skinStore,
+			cart:  new CartStore(),
 		}}
 	>
 		<App />

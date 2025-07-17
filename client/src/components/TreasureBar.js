@@ -29,7 +29,7 @@ const TreasureBar = observer(() => {
 					</ListGroup.Item>
 				))
 			) : (
-				<p>Нет трежеров</p>
+				<p></p>
 			)}
 		</ListGroup>
 	)

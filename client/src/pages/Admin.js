@@ -17,7 +17,7 @@ const Admin = () => {
 	const loadSkins = async () => {
 		setLoading(true)
 		const data = await fetchSkins()
-		setSkins(data.rows)
+		setSkins(data?.rows || [])
 		setLoading(false)
 	}
 

@@ -64,8 +64,8 @@ export const deleteTreasure = async treasure => {
 	const { data } = await $authHost.delete('api/treasure', { data: treasure })
 	return data
 }
-export const createSkin = async skins => {
-	const { data } = await $authHost.post('api/skin', skins)
+export const createSkin = async (formData) => {
+	const { data } = await $authHost.post('api/skin', formData)
 	return data
 }
 export const updateSkin = async (id, formData) => {
@@ -93,6 +93,8 @@ export const fetchSkins = async (
       typeof v !== 'symbol' && v !== undefined && v !== null && v !== ''
     )
   )
+  
+  console.log('📤 fetchSkins → params:', safeParams)
 
   const { data } = await $host.get('api/skin', { params: safeParams })
   return data

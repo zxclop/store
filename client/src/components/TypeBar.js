@@ -12,8 +12,8 @@ const TypeBar = observer(() => {
 				skin.types.map(type => (
 					<ListGroup.Item
 						style={{ cursor: 'pointer' }}
-						active={type.id === skin.selectedType?.id} // Проверка на undefined
-						onClick={() => skin.setSelectedType(type)} // Исправленный вызов
+						active={type.id === skin.selectedType?.id} 
+						onClick={() => skin.setSelectedType(type)} 
 						key={type.id}
 					>
 						{type.name}

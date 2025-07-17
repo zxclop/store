@@ -14,17 +14,17 @@ const App = observer(() => {
 	useEffect(() => {
 		check()
 			.then(data => {
-				user.setUser(true) // Устанавливаем данные пользователя
-				user.setIsAuth(true) // Устанавливаем авторизацию
+				user.setUser(true) 
+				user.setIsAuth(true) 
 			})
 			.catch(error => {
 				console.error(
-					'Ошибка авторизации:',
+					'Помилка авторизації:',
 					error.response?.data?.message || error.message
 				)
 			})
 			.finally(() => setLoading(false))
-	}, [user]) // Добавляем зависимость
+	}, [user]) 
 
 	if (loading) {
 		return <Spinner animation={'grow'} />

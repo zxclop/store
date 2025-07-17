@@ -57,18 +57,6 @@ const SkinInfo = sequelize.define('skin_info', {
 	description: { type: DataTypes.STRING, allowNull: false },
 })
 
-const TypeHero = sequelize.define('type_hero', {
-	id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-})
-
-const TypeRarity = sequelize.define('type_rarity', {
-	id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-})
-
-const RarityHero = sequelize.define('rarity_hero', {
-	id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-})
-
 User.hasOne(Basket)
 Basket.belongsTo(User)
 
@@ -79,8 +67,7 @@ Basket.hasMany(BasketSkin)
 BasketSkin.belongsTo(Basket)
 
 Rarity.hasMany(Skin)
-Skin.belongsToMany(Rarity, { through: 'SkinRarity' })
-Hero.belongsToMany(Rarity, { through: RarityHero })
+Skin.belongsTo(Rarity)
 
 Hero.hasMany(Skin)
 Skin.belongsTo(Hero)
@@ -103,14 +90,11 @@ export {
 	Hero,
 	Menu,
 	Rarity,
-	RarityHero,
 	Rating,
 	Skin,
 	SkinInfo,
 	Treasure,
 	Type,
-	TypeHero,
-	TypeRarity,
 	User
 }
 
